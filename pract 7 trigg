@@ -1,0 +1,97 @@
+Create the Student Table
+sql
+Copy code
+CREATE TABLE Student (
+    Rollno INT PRIMARY KEY,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Marks INT
+);
+1. Create Different Triggers
+a. Trigger: After Insertion – This trigger will run after a new record is inserted into the Student table.
+sql
+Copy code
+CREATE TRIGGER AfterInsertStudent
+AFTER INSERT ON Student
+FOR EACH ROW
+BEGIN
+    INSERT INTO LogTable (action, Rollno, Name, Address, Marks, action_time)
+    VALUES ('INSERT', NEW.Rollno, NEW.Name, NEW.Address, NEW.Marks, NOW());
+END;
+b. Trigger: After Updation – This trigger will run after a record in the Student table is updated.
+sql
+Copy code
+CREATE TRIGGER AfterUpdateStudent
+AFTER UPDATE ON Student
+FOR EACH ROW
+BEGIN
+    INSERT INTO LogTable (action, Rollno, Name, Address, Marks, action_time)
+    VALUES ('UPDATE', NEW.Rollno, NEW.Name, NEW.Address, NEW.Marks, NOW());
+END;
+c. Trigger: After Deletion – This trigger will run after a record in the Student table is deleted.
+sql
+Copy code
+CREATE TRIGGER AfterDeleteStudent
+AFTER DELETE ON Student
+FOR EACH ROW
+BEGIN
+    INSERT INTO LogTable (action, Rollno, Name, Address, Marks, action_time)
+    VALUES ('DELETE', OLD.Rollno, OLD.Name, OLD.Address, OLD.Marks, NOW());
+END;
+d. Trigger: Before Insertion – This trigger will run before a new record is inserted into the Student table.
+sql
+Copy code
+CREATE TRIGGER BeforeInsertStudent
+BEFORE INSERT ON Student
+FOR EACH ROW
+BEGIN
+    -- Example validation or action: Check if Marks are non-negative
+    IF NEW.Marks < 0 THEN
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Marks cannot be negative';
+    END IF;
+END;
+Note: The LogTable is a table where actions are logged (for demonstration). It should be created beforehand:
+
+sql
+Copy code
+CREATE TABLE LogTable (
+    action VARCHAR(10),
+    Rollno INT,
+    Name VARCHAR(50),
+    Address VARCHAR(100),
+    Marks INT,
+    action_time TIMESTAMP
+);
+2. Create Different Views and Display Them
+Here are a few example views based on the Student table.
+
+a. View: StudentMarksAbove50 – Displays details of students who have scored more than 50 marks.
+sql
+Copy code
+CREATE VIEW StudentMarksAbove50 AS
+SELECT Rollno, Name, Address, Marks
+FROM Student
+WHERE Marks > 50;
+
+-- Display the view
+SELECT * FROM StudentMarksAbove50;
+b. View: StudentDetails – Displays basic details of all students without showing the marks.
+sql
+Copy code
+CREATE VIEW StudentDetails AS
+SELECT Rollno, Name, Address
+FROM Student;
+
+-- Display the view
+SELECT * FROM StudentDetails;
+c. View: TopScoringStudents – Displays students with the highest marks (e.g., top 3 students).
+sql
+Copy code
+CREATE VIEW TopScoringStudents AS
+SELECT Rollno, Name, Address, Marks
+FROM Student
+ORDER BY Marks DESC
+LIMIT 3;
+
+-- Display the view
+SELECT * FROM TopScoringStudents;
