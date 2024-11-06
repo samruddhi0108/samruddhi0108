@@ -1,0 +1,84 @@
+Create the Tables and Sample Data
+sql
+Copy code
+-- Employee table
+CREATE TABLE Employee (
+    emp_no INT PRIMARY KEY,
+    ename VARCHAR(50),
+    skill VARCHAR(50),
+    pay_rate DECIMAL(10, 2)
+);
+
+-- Position table
+CREATE TABLE Position (
+    posting_no INT PRIMARY KEY,
+    skill VARCHAR(50)
+);
+
+-- Duty_allocation table
+CREATE TABLE Duty_allocation (
+    posting_no INT,
+    emp_no INT,
+    day DATE,
+    shift VARCHAR(50),
+    PRIMARY KEY (posting_no, emp_no, day),
+    FOREIGN KEY (posting_no) REFERENCES Position(posting_no),
+    FOREIGN KEY (emp_no) REFERENCES Employee(emp_no)
+);
+
+-- Sample data for demonstration purposes (not required if data is already present)
+-- Employee Data
+INSERT INTO Employee (emp_no, ename, skill, pay_rate) VALUES
+(101, 'Bhushan', 'Programming', 40000),
+(102, 'AHIRE', 'Management', 30000),
+(103, 'John', 'Programming', 45000),
+(104, 'Jane', 'Management', 35000);
+
+-- Position Data
+INSERT INTO Position (posting_no, skill) VALUES
+(1, 'Programming'),
+(2, 'Management');
+
+-- Duty_allocation Data
+INSERT INTO Duty_allocation (posting_no, emp_no, day, shift) VALUES
+(1, 101, '2003-04-01', 'Morning'),
+(1, 101, '2003-04-15', 'Evening'),
+(2, 102, '2003-04-20', 'Night');
+Queries for Each Task
+1. Find Duty Allocation Details for emp_no = 101 for April 2003
+sql
+Copy code
+SELECT * 
+FROM Duty_allocation
+WHERE emp_no = 101 
+  AND MONTH(day) = 4 
+  AND YEAR(day) = 2003;
+2. Find the Shift Details of Employee Named "Bhushan"
+sql
+Copy code
+SELECT d.*
+FROM Duty_allocation d
+JOIN Employee e ON d.emp_no = e.emp_no
+WHERE e.ename = 'Bhushan';
+3. Find Employees Whose Pay Rate Is More Than or Equal to the Rate of Pay of Employee "AHIRE"
+sql
+Copy code
+SELECT e1.*
+FROM Employee e1
+JOIN Employee e2 ON e2.ename = 'AHIRE'
+WHERE e1.pay_rate >= e2.pay_rate;
+4. Find the Names and Pay Rates of Employees with emp_no Less Than 1000, Whose Pay Rate Is More Than the Rate of Pay of At Least One Employee with emp_no Greater Than or Equal to 1000
+sql
+Copy code
+SELECT e1.ename, e1.pay_rate
+FROM Employee e1
+WHERE e1.emp_no < 1000
+  AND e1.pay_rate > (SELECT MIN(e2.pay_rate) 
+                     FROM Employee e2 
+                     WHERE e2.emp_no >= 1000);
+5. Find the Employees with the Lowest Pay Rate
+sql
+Copy code
+SELECT *
+FROM Employee
+WHERE pay_rate = (SELECT MIN(pay_rate) FROM Employee);
