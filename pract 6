@@ -1,0 +1,88 @@
+Create the Tables and Insert Sample Data
+sql
+Copy code
+-- Create the Student table
+CREATE TABLE Student (
+    student_id INT PRIMARY KEY,
+    student_name VARCHAR(50),
+    course_id INT
+);
+
+-- Create the Course table
+CREATE TABLE Course (
+    course_id INT PRIMARY KEY,
+    course_name VARCHAR(50)
+);
+
+-- Insert sample data into Student table
+INSERT INTO Student (student_id, student_name, course_id) VALUES
+(1, 'Amita', 101),
+(2, 'Neha', 102),
+(3, 'Sagar', 103),
+(4, 'Sneha', 106),
+(5, 'Shubham', 105);
+
+-- Insert sample data into Course table
+INSERT INTO Course (course_id, course_name) VALUES
+(101, 'Physics'),
+(102, 'Chemistry'),
+(104, 'Biology');
+1. Perform All Types of Joins (Inner, Left, Right, Full Outer Join)
+a. Inner Join – Returns only the records with matching course_id in both tables
+sql
+Copy code
+SELECT Student.student_id, Student.student_name, Student.course_id, Course.course_name
+FROM Student
+INNER JOIN Course ON Student.course_id = Course.course_id;
+b. Left Join – Returns all records from the Student table and matched records from the Course table. If there is no match, NULL will appear in the course_name column.
+sql
+Copy code
+SELECT Student.student_id, Student.student_name, Student.course_id, Course.course_name
+FROM Student
+LEFT JOIN Course ON Student.course_id = Course.course_id;
+c. Right Join – Returns all records from the Course table and matched records from the Student table. If there is no match, NULL will appear in the student_id and student_name columns.
+sql
+Copy code
+SELECT Student.student_id, Student.student_name, Student.course_id, Course.course_name
+FROM Student
+RIGHT JOIN Course ON Student.course_id = Course.course_id;
+d. Full Outer Join – Returns all records from both tables. If there is no match, NULL will appear in the non-matching columns. (Note: Full Outer Join may not be supported by all databases)
+sql
+Copy code
+SELECT Student.student_id, Student.student_name, Student.course_id, Course.course_name
+FROM Student
+FULL OUTER JOIN Course ON Student.course_id = Course.course_id;
+2. Create Different Views and Display Them
+Here are a few example views that could be useful:
+
+a. View: StudentCourseDetails – Displays details of students along with their course names (using Inner Join).
+sql
+Copy code
+CREATE VIEW StudentCourseDetails AS
+SELECT Student.student_id, Student.student_name, Course.course_name
+FROM Student
+INNER JOIN Course ON Student.course_id = Course.course_id;
+
+-- Display the view
+SELECT * FROM StudentCourseDetails;
+b. View: AllStudentsCourses – Displays all students and their course names, showing NULL for course names if no matching course is found (using Left Join).
+sql
+Copy code
+CREATE VIEW AllStudentsCourses AS
+SELECT Student.student_id, Student.student_name, Course.course_name
+FROM Student
+LEFT JOIN Course ON Student.course_id = Course.course_id;
+
+-- Display the view
+SELECT * FROM AllStudentsCourses;
+c. View: UnmatchedCourses – Shows all courses with no enrolled students.
+sql
+Copy code
+CREATE VIEW UnmatchedCourses AS
+SELECT Course.course_id, Course.course_name
+FROM Course
+LEFT JOIN Student ON Course.course_id = Student.course_id
+WHERE Student.course_id IS NULL;
+
+-- Display the view
+SELECT * FROM UnmatchedCourses;
