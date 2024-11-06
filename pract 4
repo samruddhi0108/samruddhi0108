@@ -1,0 +1,67 @@
+ Create the "Employee" table and insert the data
+
+CREATE TABLE Employee (
+    eid INT PRIMARY KEY,
+    ename VARCHAR(50),
+    address VARCHAR(50),
+    salary DECIMAL(10, 2),
+    commission DECIMAL(10, 2)
+);
+
+-- Insert data into the Employee table
+INSERT INTO Employee (eid, ename, address, salary, commission)
+VALUES 
+(1, 'Amita', 'Pune', 35000, NULL),
+(2, 'Neha', 'Pune', 5000, NULL),
+(3, 'Sagar', 'Nasik', 25000, NULL),
+(4, 'Sneha', 'Mumbai', 28000, 2000),
+(5, 'Shubham', 'Mumbai', 19000, NULL);
+1. Find Employees Who Belong to Mumbai City
+
+SELECT * FROM Employee
+WHERE address = 'Mumbai';
+2. Find the Employee with the Maximum Salary
+
+SELECT * FROM Employee
+WHERE salary = (SELECT MAX(salary) FROM Employee);
+3. Display the Content of the Employee Table in Descending Order of Salary
+sql
+Copy code
+SELECT * FROM Employee
+ORDER BY salary DESC;
+4. Find the Name of Employees Who Do Not Live in Nasik or Pune City
+
+SELECT ename
+FROM Employee
+WHERE address NOT IN ('Nasik', 'Pune');
+5. Find Information of Employees Whose Name Ends with "R"
+
+SELECT *
+FROM Employee
+WHERE ename LIKE '%R';
+6. Find the Count of Staff from Each City Having Count >= 2
+
+SELECT address AS city, COUNT(*) AS staff_count
+FROM Employee
+GROUP BY address
+HAVING COUNT(*) >= 2;
+7. Find City-Wise Maximum Salary
+
+SELECT address AS city, MAX(salary) AS max_salary
+FROM Employee
+GROUP BY address;
+8. Find City-Wise Maximum Salary Where Maximum Salary Is Greater Than 19000
+
+SELECT address AS city, MAX(salary) AS max_salary
+FROM Employee
+GROUP BY address
+HAVING MAX(salary) > 19000;
+9. Find the Count of Staff from Mumbai
+
+SELECT COUNT(*) AS staff_count
+FROM Employee
+WHERE address = 'Mumbai';
+10. Delete Employees Who Have a Salary Greater Than 30,000
+
+DELETE FROM Employee
+WHERE salary > 30000;
