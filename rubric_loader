@@ -1,0 +1,76 @@
+# rubric_loader.py
+import pandas as pd
+import re
+
+def re_split(s: str):
+    """Split keyword string using ; , / | or line break."""
+    return [p.strip() for p in re.split(r'[;,/|\n]+', s) if p.strip()]
+
+def load_rubric_from_excel(path: str, sheet_name: str = None):
+    """Load rubric from Excel and detect columns automatically."""
+    xl = pd.ExcelFile(path)
+
+    # Auto-detect sheet
+    if sheet_name:
+        sheet = sheet_name
+    else:
+        candidates = [s for s in xl.sheet_names if "rub" in s.lower() or "criteria" in s.lower()]
+        sheet = candidates[0] if candidates else xl.sheet_names[0]
+
+    df = xl.parse(sheet)
+
+    # Detect important column names
+    cols_lower = {c.lower(): c for c in df.columns}
+
+    def find_col(*possibilities):
+        for key in cols_lower:
+            for p in possibilities:
+                if p in key:
+                    return cols_lower[key]
+        return None
+
+    crit_col = find_col("criterion", "criteria", "skill", "metric", "name")
+    desc_col = find_col("description", "desc")
+    key_col = find_col("keywords", "keyword", "key")
+    weight_col = find_col("weight", "marks", "score", "weightage")
+    min_col = find_col("min", "min words", "min_word", "min_words")
+    max_col = find_col("max", "max words", "max_word", "max_words")
+
+    criteria = []
+    for _, row in df.iterrows():
+        criterion = str(row[crit_col]) if crit_col and not pd.isna(row[crit_col]) else ""
+        desc = str(row[desc_col]) if desc_col and not pd.isna(row[desc_col]) else ""
+
+        kw_raw = row[key_col] if key_col and not pd.isna(row[key_col]) else ""
+        keywords = []
+        if isinstance(kw_raw, str):
+            keywords = re_split(kw_raw)
+
+        weight = float(row[weight_col]) if weight_col and not pd.isna(row[weight_col]) else 0.0
+        min_w = int(row[min_col]) if min_col and not pd.isna(row[min_col]) else None
+        max_w = int(row[max_col]) if max_col and not pd.isna(row[max_col]) else None
+
+        criteria.append({
+            "criterion": criterion,
+            "description": desc,
+            "keywords": keywords,
+            "weight": weight,
+            "min_words": min_w,
+            "max_words": max_w
+        })
+
+    # Normalize weights to sum to 100
+    total_w = sum(c["weight"] for c in criteria)
+    if total_w > 0:
+        for c in criteria:
+            c["weight"] = (c["weight"] / total_w) * 100
+    else:
+        # If no weight provided, distribute equally
+        each = 100 / len(criteria)
+        for c in criteria:
+            c["weight"] = each
+
+    return {
+        "criteria": criteria,
+        "raw": df
+    }
